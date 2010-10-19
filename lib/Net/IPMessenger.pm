@@ -2,6 +2,7 @@ package Net::IPMessenger;
 
 use warnings;
 use strict;
+use 5.008001;
 use Carp;
 use IO::Socket::INET;
 use Net::IPMessenger::ClientData;
@@ -19,7 +20,7 @@ __PACKAGE__->mk_accessors(
         )
 );
 
-our $VERSION    = '0.10';
+our $VERSION    = '0.11';
 my $PROTO       = 'udp';
 my $PORT        = 2425;
 my $BROADCAST   = '255.255.255.255';

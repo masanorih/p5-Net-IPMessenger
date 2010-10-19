@@ -40,3 +40,6 @@ Revision history for Net-IPMessenger
 
 0.10   Mon Oct 18 15:53:53 2010
        Deleted required Test::Perl::Critic from Build.PL
+
+0.11   Tue Oct 19 10:28:03 2010
+       Added Encode.pm to required module

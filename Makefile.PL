@@ -2,6 +2,8 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 
+require 5.008001;
+
 WriteMakefile(
     NAME                => 'Net::IPMessenger',
     AUTHOR              => 'Masanori Hara <massa.hara at gmail.com>',
@@ -10,6 +12,7 @@ WriteMakefile(
     PL_FILES            => {},
     PREREQ_PM => {
         'Class::Accessor::Fast' => 0,
+        'Encode'                => 0,
         'Test::More'            => 0,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
