@@ -20,7 +20,7 @@ __PACKAGE__->mk_accessors(
         )
 );
 
-our $VERSION    = '0.11';
+our $VERSION    = '0.12';
 my $PROTO       = 'udp';
 my $PORT        = 2425;
 my $BROADCAST   = '255.255.255.255';
@@ -294,7 +294,7 @@ Net::IPMessenger - Interface to the IP Messenger Protocol
 
 =head1 VERSION
 
-This document describes Net::IPMessenger version 0.08
+This document describes Net::IPMessenger version 0.12
 
 
 =head1 SYNOPSIS
@@ -322,7 +322,7 @@ This document describes Net::IPMessenger version 0.08
 
 =head1 DESCRIPTION
 
-This is a client class of the IP Messenger (L<http://www.ipmsg.org/>)
+This is a client class of the IP Messenger (L<http://ipmsg.org/index.html.en>)
 Protocol. Sending and Receiving the IP Messenger messages.
 
 

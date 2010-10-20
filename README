@@ -1,10 +1,10 @@
-Net-IPMessenger version 0.11
+Net-IPMessenger version 0.12
 
 ABOUT
 
 This module allows you to connect, get and send IP Messenger messages.
 What is IP Messenger ? IP Messenger is a UDP based simple text message protocol.
-See L<http://www.ipmsg.org/> for details (It's Japanese though).
+See L<http://ipmsg.org/index.html.en> for details
 
 DEPENDENCIES
 
@@ -15,7 +15,6 @@ Class::Accessor::Fast
 The following perl modules are required for 'make test':
 
 Test::More
-Test::Perl::Critic
 
 The following perl modules are required for encryption support:
 
