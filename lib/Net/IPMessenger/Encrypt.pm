@@ -5,9 +5,11 @@ use strict;
 use Net::IPMessenger::EncryptOption;
 use base qw( Class::Accessor::Fast );
 
-__PACKAGE__->mk_accessors(qw( exponent modulus private_key support_encryption ));
+__PACKAGE__->mk_accessors(
+    qw( exponent modulus private_key
+        support_encryption attach )
+);
 
-our $VERSION     = '0.01';
 my $RSA_KEY_SIZE = 1024;
 my $IV           = "\0\0\0\0\0\0\0\0";
 
@@ -15,6 +17,7 @@ sub new {
     my $class = shift;
     my %args  = @_;
 
+return;
     # needs those modules for encryption support
     eval {
         require Crypt::Blowfish;
@@ -74,9 +77,7 @@ sub public_key_string {
 }
 
 sub encrypt_message {
-    my $self    = shift;
-    my $message = shift;
-    my $pubkey  = shift;
+    my( $self, $message, $pubkey ) = @_;
 
     my $option = $self->option( hex $pubkey->{option} );
     my $blowfish_key_size;
@@ -113,12 +114,10 @@ sub encrypt_message {
 }
 
 sub decrypt_message {
-    my $self    = shift;
-    my $message = shift;
-
+    my( $self, $message ) = @_;
     return $message unless defined $self->private_key;
 
-    my( $enc_opt, $cipher_key, $cipher_text ) = split /\:/, $message;
+    my( $enc_opt, $cipher_key, $cipher_text ) = split /\:/, $message, 3;
     my $rsa = Crypt::OpenSSL::RSA->new_private_key( $self->private_key );
     $rsa->use_pkcs1_padding;
     my $shared_key = $rsa->decrypt( pack( "H*", $cipher_key ) );
@@ -131,10 +130,17 @@ sub decrypt_message {
         -iv          => $IV,
         -header      => 'none',
     );
+    # XXX attach info not encrypted
+warn $cipher_text;
+    my( $fileid, $attach ) = split /:/, $cipher_text, 2;
+    $fileid = substr $fileid, -9;
+    $attach = $fileid . ':' . $attach;
+
     my $decrypted = $blowfish->decrypt( pack( "H*", $cipher_text ) );
-    # windows client add null string so delete it
-    my($plain_text) = split /\0/, $decrypted;
-    return $plain_text;
+    # delete null string
+    my($text) = split /\0/, $decrypted;
+    $self->attach($attach);
+    return $text;
 }
 
 1;
@@ -144,16 +150,9 @@ __END__
 
 Net::IPMessenger::Encrypt - Encryption support for Net::IPMessenger
 
-
-=head1 VERSION
-
-This document describes Net::IPMessenger::Encrypt version 0.01
-
-
 =head1 DESCRIPTION
 
 Encryption support for Net::IPMessenger.
-
 
 =head1 METHODS
 
@@ -181,59 +180,3 @@ Encrypt message.
 =head2 decrypt_message
 
 Decrypt message.
-
-=head1 DEPENDENCIES
-
-None.
-
-
-=head1 INCOMPATIBILITIES
-
-None reported.
-
-
-=head1 BUGS AND LIMITATIONS
-
-Please report any bugs or feature requests to
-C<bug-net-ipmessenger@rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org>.
-
-
-=head1 AUTHOR
-
-Masanori Hara  C<< <massa.hara at gmail.com> >>
-
-
-=head1 LICENCE AND COPYRIGHT
-
-Copyright (c) 2007, Masanori Hara C<< <massa.hara at gmail.com> >>.
-All rights reserved.
-
-This module is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself. See L<perlartistic>.
-
-
-=head1 DISCLAIMER OF WARRANTY
-
-BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
-FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
-OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
-PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
-EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
-ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
-YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
-NECESSARY SERVICING, REPAIR, OR CORRECTION.
-
-IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
-WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
-REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
-LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
-OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
-THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
-RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
-FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
-SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGES.
-
-=cut

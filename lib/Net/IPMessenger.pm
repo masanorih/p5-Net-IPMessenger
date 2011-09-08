@@ -20,7 +20,7 @@ __PACKAGE__->mk_accessors(
         )
 );
 
-our $VERSION    = '0.12';
+our $VERSION    = '0.13';
 my $PROTO       = 'udp';
 my $PORT        = 2425;
 my $BROADCAST   = '255.255.255.255';
@@ -51,9 +51,9 @@ sub new {
     $self->sendretry( $args{SendRetry} || $SEND_RETRY );
 
     # encryption support
-    my $encrypt_support = 1;
-    $encrypt_support = $args{Encrypt} if exists $args{Encrypt};
-    $self->encrypt( Net::IPMessenger::Encrypt->new ) if $encrypt_support;
+    my $encrypt = Net::IPMessenger::Encrypt->new;
+    # enable only encrypt modules are available
+    $self->encrypt($encrypt) if $encrypt;
 
     my $sock = IO::Socket::INET->new(
         Proto     => $PROTO,
@@ -102,7 +102,6 @@ sub recv {
 
     my $command  = $self->messagecommand( $user->command );
     my $modename = $command->modename;
-
     # invoke event handler
     my $ev_handler = $self->event_handler;
     if ( ref $ev_handler and ref $ev_handler eq 'ARRAY' ) {
@@ -113,7 +112,6 @@ sub recv {
             $handler->$modename( $self, $user ) if $handler->can($modename);
         }
     }
-
     return $user;
 }
 
@@ -196,17 +194,25 @@ sub parse_anslist {
     return (@deleted);
 }
 
-sub send {
-    my $self       = shift;
-    my $args       = shift;
-    my $sock       = $self->socket;
+sub generate_packet {
+    my( $self, $args ) = @_;
     my $command    = $args->{command};
     my $option     = $args->{option} || '';
     my $packet_num = $args->{packet_num} || $self->get_new_packet_num;
+    $args->{option} = $option;
+    $args->{packet_num} = $packet_num;
 
     my $msg = sprintf "1:%s:%s:%s:%s:%s", $packet_num, $self->username,
         $self->hostname, $command, $option;
+    return $msg;
+}
 
+sub send {
+    my( $self, $args ) = @_;
+    my $sock       = $self->socket;
+    my $command    = $args->{command};
+    my $msg        = $self->generate_packet($args);
+    my $packet_num = $args->{packet_num};
     # TODO check max msg length check by MAX_SOCKBUF
 
     # stack sendmsg packet number
@@ -339,13 +345,14 @@ Protocol. Sending and Receiving the IP Messenger messages.
         Port       => $port,
         SendRetry  => $sendretry,
         BroadCast  => $broadcast,
-        Encrypt    => 1,            # true value means encrypt support enable
     ) or die;
 
 The new method creates object, sets initial variables and create socket.
 When this returns undef, it means you failed to create socket
 (i.e. port already in use).
 Check $! to see the error reason.
+
+Encrypt option is automatically enabled if enough modules are found.
 
 =head2 get_connection
 
@@ -472,7 +479,7 @@ Masanori Hara  C<< <massa.hara at gmail.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2010, Masanori Hara C<< <massa.hara at gmail.com> >>.
+Copyright (c) 2010-2011, Masanori Hara C<< <massa.hara at gmail.com> >>.
 All rights reserved.
 
 This module is free software; you can redistribute it and/or
