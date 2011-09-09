@@ -9,7 +9,7 @@ if ( $ENV{TEST_POD} || $ENV{TEST_ALL} ) {
         if $@;
 }
 else {
-    plan skip_all => 'set TEST_POD for testing POD coverage';
+    plan skip_all => 'set TEST_POD or TEST_ALL for testing POD coverage';
 }
 
 all_pod_coverage_ok();

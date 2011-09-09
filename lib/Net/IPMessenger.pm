@@ -430,6 +430,12 @@ You can change retry count like below.
 
 To access message queue, use sending_packet method.
 
+=head2 generate_packet
+
+    my $msg = $self->generate_packet($args);
+
+Generates sending packet in order
+
 =head2 messagecommand
 
     my $command = $ipmsg->messagecommand('SENDMSG')->set_secret;

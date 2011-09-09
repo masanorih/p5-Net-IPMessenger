@@ -48,5 +48,6 @@ Revision history for Net-IPMessenger
        change version in POD
        change URL to English one
 
-0.13   Thu Sep  1 11:03:18 2011
+0.13   Fri Sep  9 16:00:22 2011
        add attach param to ClientData.pm
+       add t/01.network.t for network test

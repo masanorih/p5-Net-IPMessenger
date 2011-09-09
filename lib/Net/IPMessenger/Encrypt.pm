@@ -16,8 +16,6 @@ my $IV           = "\0\0\0\0\0\0\0\0";
 sub new {
     my $class = shift;
     my %args  = @_;
-
-return;
     # needs those modules for encryption support
     eval {
         require Crypt::Blowfish;
@@ -131,9 +129,8 @@ sub decrypt_message {
         -header      => 'none',
     );
     # XXX attach info not encrypted
-warn $cipher_text;
     my( $fileid, $attach ) = split /:/, $cipher_text, 2;
-    $fileid = substr $fileid, -9;
+    $fileid = substr $fileid, -1;
     $attach = $fileid . ':' . $attach;
 
     my $decrypted = $blowfish->decrypt( pack( "H*", $cipher_text ) );

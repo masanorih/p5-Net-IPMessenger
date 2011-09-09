@@ -14,7 +14,7 @@ lib/Net/IPMessenger/ToStdoutEventHandler.pm
 lib/Net/IPMessenger/Encrypt.pm
 lib/Net/IPMessenger/EncryptOption.pm
 t/00.load.t
-t/perlcritic.t
+t/01.network.t
 t/pod-coverage.t
 t/pod.t
 META.yml                                 Module meta-data (added by MakeMaker)
