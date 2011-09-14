@@ -17,4 +17,5 @@ t/00.load.t
 t/01.network.t
 t/pod-coverage.t
 t/pod.t
+t/metrics.t
 META.yml                                 Module meta-data (added by MakeMaker)

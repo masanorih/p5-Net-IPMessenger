@@ -51,3 +51,6 @@ Revision history for Net-IPMessenger
 0.13   Fri Sep  9 16:00:22 2011
        add attach param to ClientData.pm
        add t/01.network.t for network test
+
+0.14   Thu Sep 15 02:15:53 2011
+       add metrics.t for Test::Perl::Metrics::Simple test

@@ -20,7 +20,7 @@ __PACKAGE__->mk_accessors(
         )
 );
 
-our $VERSION    = '0.13';
+our $VERSION    = '0.14';
 my $PROTO       = 'udp';
 my $PORT        = 2425;
 my $BROADCAST   = '255.255.255.255';
@@ -300,7 +300,7 @@ Net::IPMessenger - Interface to the IP Messenger Protocol
 
 =head1 VERSION
 
-This document describes Net::IPMessenger version 0.12
+This document describes Net::IPMessenger version 0.14
 
 
 =head1 SYNOPSIS
