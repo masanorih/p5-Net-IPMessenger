@@ -41,8 +41,9 @@ sub SENDMSG {
     # decrypt message if the message is encrypted
     # and encryption support is available
     if ( $command->get_encrypt and $ipmsg->encrypt ) {
-        my $encrypt = $ipmsg->encrypt;
-        my $decrypted = $encrypt->decrypt_message( $user->get_message );
+        my $encrypt   = $ipmsg->encrypt;
+        my $decrypted = $encrypt->decrypt_message( $user->get_message,
+            $user->packet_num );
         $user->option($decrypted);
         if ( $command->get_fileattach ) {
             $user->attach( $encrypt->attach );
@@ -83,7 +84,8 @@ sub GETINFO {
     $ipmsg->send(
         {
             command => $ipmsg->messagecommand('SENDINFO'),
-            option  => sprintf( "Net::IPMessenger-%s", $ipmsg->VERSION ),
+            option =>
+                sprintf( "Net::IPMessenger-%s", $Net::IPMessenger::VERSION ),
         }
     );
 }
@@ -104,8 +106,8 @@ sub ANSPUBKEY {
     return unless $ipmsg->encrypt;
     my $key     = $user->key;
     my $message = $user->get_message;
-    my( $option, $public_key ) = split /:/,  $message;
-    my( $exponent, $modulus )  = split /\-/, $public_key;
+    my( $option,   $public_key ) = split /:/,  $message;
+    my( $exponent, $modulus )    = split /\-/, $public_key;
     $ipmsg->user->{$key}->pubkey(
         {
             option   => $option,

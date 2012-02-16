@@ -20,6 +20,10 @@ my %ENCRYPT_OPT = (
     RC2_40OLD       => 0x00000010,
     RC2_128OLD      => 0x00000040,
     BLOWFISH_128OLD => 0x00000400,
+    AES_256         => 0x00100000,
+    PACKETNO_IV     => 0x00800000,
+    SIGN_SHA1       => 0x20000000,
+    ENCODE_BASE64   => 0x01000000,
 );
 
 sub new {
@@ -61,6 +65,17 @@ sub AUTOLOAD {
     else {
         return;
     }
+}
+
+sub dumpref {
+    my $self = shift;
+    my $option =  $self->{_option};
+    my $ref;
+    for my $key ( keys %ENCRYPT_OPT ) {
+        my $val = $ENCRYPT_OPT{$key};
+        $ref->{$key} = $option & $val ? 1 : 0;
+    }
+    return $ref;
 }
 
 sub get_option {

@@ -279,10 +279,7 @@ sub messagecommand {
 }
 
 sub get_new_packet_num {
-    my $self  = shift;
-    my $count = $self->packet_count;
-    $self->packet_count( ++$count );
-    return ( time + $count );
+    return time;
 }
 
 sub my_info {

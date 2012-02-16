@@ -11,7 +11,7 @@ __PACKAGE__->mk_accessors(
         version         packet_num      user            host
         command         option          nick            group
         peeraddr        peerport        listaddr        time
-        pubkey          encrypt         attach
+        pubkey          encrypt         attach          fingerprint
         )
 );
 
@@ -19,8 +19,7 @@ my $NO_NAME  = '(noname)';
 my $NO_GROUP = '(nogroup)';
 
 sub new {
-    my $class = shift;
-    my %args  = @_;
+    my( $class, %args ) = @_;
 
     my $self = {};
     bless $self, $class;
@@ -45,12 +44,12 @@ sub new {
     if ( exists $args{Message} ) {
         $self->parse( $args{Message} );
     }
+    $self->update_fingerprint;
     return $self;
 }
 
 sub parse {
-    my $self    = shift;
-    my $message = shift;
+    my( $self, $message ) = @_;
 
     my( $ver, $packet_num, $user, $host, $command, $option ) =
         split /:/, $message, 6;
@@ -62,25 +61,33 @@ sub parse {
     $self->command($command);
     $self->option($option);
     $self->time( strftime "%Y-%m-%d %H:%M:%S", localtime(time) );
+    $self->update_fingerprint;
     $self->update_nickname;
 }
 
 sub update_nickname {
-    my $self = shift;
-
-    my $command  = Net::IPMessenger::MessageCommand->new( $self->command );
-    my $modename = $command->modename;
-    if ( $modename eq 'BR_ENTRY' or $modename eq 'ANSENTRY' ) {
-        my( $nick, $group ) = ( $self->option =~ /(.*?)\0(.*?)\0/o );
-
-        $self->nick($nick)   if defined $nick;
-        $self->group($group) if defined $group;
+    my $self    = shift;
+    my $command = Net::IPMessenger::MessageCommand->new( $self->command );
+    my $mode    = $command->modename;
+    if ( $mode eq 'BR_ENTRY' or $mode eq 'ANSENTRY' ) {
+        my(@nickname) = split /\0/, $self->option;
+        $self->nick( $nickname[0] ) if defined $nickname[0];
+        $self->group( $nickname[1] ) if defined $nickname[1];
         $self->encrypt( $command->get_encrypt );
+    }
+
+}
+
+sub update_fingerprint {
+    my( $self, $name ) = @_;
+    $name ||= $self->user;
+    if ( $name =~ /(.+)\-\<(\w{16})\>/ ) {
+        $self->user($1);
+        $self->fingerprint($2);
     }
 }
 
 # Accessors
-
 sub nickname {
     my $self = shift;
     return sprintf "%s\@%s", $self->nick || $self->user || $NO_NAME,
